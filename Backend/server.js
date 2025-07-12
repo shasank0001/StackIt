@@ -8,6 +8,12 @@ import questionRoutes from './routes/questionRoutes.js';
 import answerRoutes from './routes/answerRoutes.js';
 import tagRoutes from './routes/tagRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import { testConnection } from './Database/connection.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+testConnection();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
