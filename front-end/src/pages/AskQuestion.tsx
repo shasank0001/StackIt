@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import api from "../lib/api";
 
 const AskQuestion = () => {
   const [title, setTitle] = useState("");
@@ -55,9 +56,21 @@ const AskQuestion = () => {
     setImageUrls(newUrls);
   };
 
-  const handleSubmit = () => {
-    console.log("Submitting question:", { title, description, tags, images });
-    navigate("/");
+  const handleSubmit = async () => {
+    try {
+      const response = await api.post("/api/questions", {
+        title,
+        description,
+        // Optionally send tags and images if your backend supports them
+      });
+      if (response.data.success) {
+        navigate("/");
+      } else {
+        alert(response.data.message || "Failed to submit question");
+      }
+    } catch (error) {
+      alert("An error occurred while submitting your question.");
+    }
   };
 
   return (
