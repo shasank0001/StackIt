@@ -1,4 +1,7 @@
 import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
@@ -8,6 +11,37 @@ import notificationRoutes from './routes/notificationRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(cors({
+  origin: 'http://localhost:5173', // Change to your frontend URL in production
+  credentials: true
+}));
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: '*', // Change to your frontend URL in production
+        methods: ['GET', 'POST']
+    }
+});
+
+// Make io accessible in controllers via req.app.get('io')
+app.set('io', io);
+
+// Socket.io connection logic
+io.on('connection', (socket) => {
+    console.log('A user connected:', socket.id);
+
+    // Listen for the user joining their room
+    socket.on('join', (userId) => {
+        socket.join(userId);
+        console.log(`User ${userId} joined their room`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
+});
 
 // Middleware
 app.use(express.json());
@@ -31,6 +65,6 @@ app.use((err, req, res, next) => {
     res.status(500).json({ success: false, message: 'Server Error' });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

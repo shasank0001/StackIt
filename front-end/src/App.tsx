@@ -21,17 +21,23 @@ import Notifications from "./pages/Notifications";
 import QuestionDetail from "./pages/QuestionDetail";
 import AskQuestion from "./pages/AskQuestion";
 import NotFound from "./pages/NotFound";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+function AppContent() {
+  const { user } = useAuth();
+  const userId = user?.id;
+  return (
     <ThemeProvider defaultTheme="system" storageKey="stackit-theme">
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <Notifications userId={userId} />
         <BrowserRouter>
           <Routes>
+            <Route path="/login" element={<Login />} />
             <Route path="/" element={<Index />} />
             <Route path="/questions" element={<Questions />} />
             <Route path="/trending" element={<Trending />} />
@@ -44,7 +50,7 @@ const App = () => (
             <Route path="/tags" element={<Tags />} />
             <Route path="/users" element={<Users />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/notifications" element={<Notifications userId={userId} />} />
             <Route path="/question/:id" element={<QuestionDetail />} />
             <Route path="/ask" element={<AskQuestion />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
@@ -53,6 +59,14 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
+  );
+}
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   </QueryClientProvider>
 );
 
